@@ -1,0 +1,20 @@
+.percentageIndicator {
+    background-color: rgb(121, 140, 174);
+    width: 100% !important;
+    border-radius: 5px;
+    height: 8px;
+    box-shadow: 2px;
+  }
+
+  .percentageIndicator::before {
+    content: '';
+    width: calc(var(--powerpercentage));
+    max-width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    display: block;
+    opacity: 80%;
+    filter: blur(3px);
+    background-color: rgb(34 197 94 / var(--tw-text-opacity));
+    animation: ping 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }

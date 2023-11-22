@@ -1,0 +1,17 @@
+<div class="flex flex-col flex-auto bg-card shadow rounded-2xl h-40 overflow-hidden">
+    <div class="flex items-center leading-5 text-md text-secondary mt-6 mx-6">
+        <mat-icon [svgIcon]="icon">{{icon}}</mat-icon>
+        <div class="ml-1 text-lg font-bold">{{ title }}</div>
+    </div>
+    <div class="flex flex-col items-center" [class]="(imageValue !== undefined ? 'mt-0' : 'mt-6')">
+        <div *ngIf="summaryValue !== undefined"
+            class="text-7xl sm:text-8xl md:text-6xl font-bold tracking-tight leading-none" [class]="valueColor" [appCountUp]="summaryValue" [numberFormatOptions]="summaryValueNumberFormatOptions">
+        </div>
+        <div class="h-30 -m-5" *ngIf="imageValue !== undefined">
+            <img  [src]="imageValue" class="w-full h-full  object-cover">
+        </div>
+        <div class="text-lg font-medium" [class]="(imageValue !== undefined ? '-m-4'  : '') + ' ' + valueUnitColor">{{unit}}</div>
+        <!-- <div class="flex items-baseline justify-center w-full mt-6 text-secondary"></div> -->
+    </div>
+    <mat-progress-bar [class]="imageValue !== undefined ? 'mt-9' : 'mt-5'" color="primary" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+</div>

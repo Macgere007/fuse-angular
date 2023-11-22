@@ -1,0 +1,35 @@
+<div class="sm:col-span-1 lg:col-span-1 flex flex-col flex-auto bg-card shadow rounded-2xl overflow-hidden h-44">
+    <div class="flex justify-between m-6 mb-0">
+        <div class="flex items-center leading-5 text-md text-secondary">
+            <mat-icon class="icon-size-5 text-green-500">{{ summaryIcon }}</mat-icon>
+            <div class="ml-1 text-lg font-bold">{{ summaryTitle }}</div>
+        </div>
+    </div>
+    <div class="flex flex-row items-start mx-6 mt-3">
+        <div class="text-7xl font-bold tracking-tighter leading-tight">
+            <span [appCountUp]="mainValue"></span><span class="ml-2 text-lg">{{mainValueUnit}}</span>
+        </div>
+        <div class="flex ml-3">
+            <button class="cursor-auto"
+                [matTooltip]="tooltipValue">
+                <div class="flex items-start ml-1 text-md leading-none">
+                    <!-- <span class="m-0">{{ t('Maximum Power :')}}</span>&nbsp; -->
+                    <span class="font-medium text-green-500 text-lg">{{ formatNumber(subValue) }}
+                        <span class="text-sm">{{subValueUnit}}</span>
+                    </span>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="isShowPercentage" class="flex w-full mx-7 xxs:mx-2 lg:mt-2 px-4">
+        <div class="percentageIndicator mt-2"
+            [style.--powerpercentage]="percentageValue.toFixed(0) + '%'">
+        </div>
+        <div class="mx-2 md:mx-4 mt-0.5 md:text-md md:font-bold">
+            {{(percentageValue === undefined || percentageValue !== percentageValue ? '-' : percentageValue.toFixed(0)) + '%'}}
+        </div>
+    </div>
+
+    <mat-progress-bar class="mt-4" color="primary" mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+</div>

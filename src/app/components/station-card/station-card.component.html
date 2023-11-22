@@ -1,0 +1,172 @@
+<fuse-card class="flex flex-col flex-auto" #fuseCard>
+    <img class="object-cover"
+        [src]="'https://maps.googleapis.com/maps/api/staticmap?center='+station.latitude+','+station.longitude+'&zoom=19&size=400x300&maptype=satellite&key=AIzaSyCHP9I77f_cRoxih4Ro_OvpCoJBWCZpYY8'"
+        alt="Station Satelite Image" />
+    <div class="">
+        <div class="m-5">
+            <div class="flex justify-between">
+                <div class="flex flex-col">
+                    <div class="text-secondary text-md"></div>
+                    <div class="text-2xl font-semibold leading-tight mt-1">
+                        {{ station.stationName }}
+                    </div>
+                    <div class="text-secondary text-md mt-1">
+                        {{ station.address }}
+                    </div>
+                </div>
+            </div>
+            <hr class="border-b my-4" />
+            <div>
+                <div class="-my-3 divide-y">
+                    <div class="grid grid-cols-2 py-2">
+                        <div class="flex items-center">
+                            <div class="truncate">{{ 'Load' | transloco }}</div>
+                        </div>
+                        <div *ngIf="!isLoading" class="text-right text-secondary">
+                            {{station.summary ? station.summary.loadPower.toFixed(1) : null}} kW</div>
+                        <div *ngIf="isLoading" class="whitespace-wrap">
+                            <mat-progress-bar mode="buffer" color="primary"></mat-progress-bar>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 py-2">
+                        <div class="flex items-center">
+                            <div class="truncate">{{ 'Generated Power' | transloco }}</div>
+                        </div>
+                        <div *ngIf="!isLoading" class="text-right text-secondary"
+                            [ngClass]="station.summary ? (station.summary.generatedPower/station.summary.powerMax >= 0.75 ? 'text-green-600' : station.summary.generatedPower/station.summary.powerMax >= 0.5 ? 'text-blue-600' : 'text-red-600') : ''">
+                            {{station.summary ? station.summary.generatedPower.toFixed(1) : null}} kW
+                            <div *ngIf="!isLoading"
+                                class="whitespace-wrap text-right">
+                                <mat-progress-bar class="rounded-full" dir="rtl" [mode]="'determinate'"
+                                    [value]="station.summary ? (station.summary.generatedPower/station.summary.powerMax)* 100 : 0"></mat-progress-bar>
+                            </div>
+                        </div>
+                        <div *ngIf="isLoading" class="whitespace-wrap">
+                            <mat-progress-bar mode="buffer" color="primary"></mat-progress-bar>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 py-2">
+                        <div class="flex items-center">
+                            <div class="truncate">{{ 'Grid Power' | transloco }}</div>
+                        </div>
+                        <div *ngIf="!isLoading" class="text-right text-secondary">
+                            {{station.summary ? station.summary.gridPower.toFixed(1) : null}} kW</div>
+                        <div *ngIf="isLoading" class="whitespace-wrap">
+                            <mat-progress-bar mode="buffer" color="primary"></mat-progress-bar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center w-full border-t divide-x mt-5">
+            <a (click)="assignUser(fuseCard)"
+                class="flex flex-auto items-center justify-center py-4 hover:bg-hover cursor-pointer">
+                <span class="text-primary-500 dark:text-primary-400">{{'Assign User' | transloco}} ({{
+                    station.users?.length }})</span>
+            </a>
+            <a class="flex flex-auto items-center justify-center py-4 hover:bg-hover cursor-pointer" (click)="monitorStation(station)">
+                <span class="text-primary-500 dark:text-primary-400">{{'Monitor User' | transloco}}</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Card Expansion -->
+    <ng-container fuseCardExpansion>
+        <div class="m-5 mt-0">
+            <div class="flex flex-col mt-3">
+                <mat-form-field class="fuse-mat-no-subscript w-full" [floatLabel]="'always'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:user'"
+                        matPrefix></mat-icon>
+                    <input matInput
+                        [formControl]="searchUser"
+                        [placeholder]='"Search Name or Email User to Assign" | transloco' />
+                    <button mat-icon-button matSuffix>
+                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:search'"></mat-icon>
+                    </button>
+                </mat-form-field>
+            </div>
+
+            <!-- Alert -->
+            <fuse-alert *ngIf="isShowAlert" class="pt-5" [type]="'success'" [appearance]="'border'">
+                <span
+                    [class]="alertType === 'success' ? 'text-green-400' : alertType === 'error' ? 'text-red-500' : text-gray-500 "
+                    [innerHTML]="alertMessage"></span>
+            </fuse-alert>
+
+            <!-- Assign -->
+            <div class="flex flex-col divide-y" *ngFor="let user of searchUserAssign">
+                <ng-container>
+                    <div class="flex sm:flex-row sm:items-center py-2">
+                        <div class="flex items-center">
+                            <div
+                                class="flex flex-0 items-center justify-center w-10 h-10 rounded-full overflow-hidden">
+                                <ng-container>
+                                    <div
+                                        class="flex items-center justify-center w-full h-full rounded-full text-lg uppercase bg-blue-200 text-black-600 dark:bg-gray-700 dark:text-gray-200">
+                                        {{user.name[0]}}
+                                    </div>
+                                </ng-container>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium sm:text-md xxs:text-sm">
+                                    {{(user.name)}}
+                                </div>
+                                <div
+                                    class="text-secondary xxs:max-w-10 xs:max-w-40 xxs:overflow-hidden lg:overflow-x-scroll">
+                                    {{(user.email)}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-0 ml-auto">
+                            <div class="order-1 sm:ml-3">
+                                <button mat-icon-button matTooltip="Assign"
+                                    (click)="assignUserToStation({userId:user, stationId:station})">
+                                    <mat-icon class="text-green-500" [svgIcon]="
+                                            'heroicons_outline:plus-circle'"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+
+            <!-- Unassign -->
+            <div class="flex flex-col divide-y" *ngFor="let user of station.users">
+                <ng-container>
+                    <div class="flex sm:flex-row sm:items-center py-2">
+                        <div class="flex items-center">
+                            <div
+                                class="flex flex-0 items-center justify-center w-10 h-10 rounded-full overflow-hidden">
+                                <ng-container>
+                                    <div
+                                        class="flex items-center justify-center w-full h-full rounded-full text-lg uppercase bg-blue-200 text-black-600 dark:bg-gray-700 dark:text-gray-200">
+                                        {{user.name[0]}}
+                                    </div>
+                                </ng-container>
+                            </div>
+                            <div class="ml-4">
+                                <div class="font-medium sm:text-md xxs:text-sm">
+                                    {{(user.name)}}
+                                </div>
+                                <div
+                                    class="text-secondary xxs:max-w-10 xs:max-w-40 sm:max-w-full xxs:overflow-hidden truncate lg:overflow-x-scroll">
+                                    {{(user.email)}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2 sm:mt-0 ml-auto">
+                            <div class="order-1 sm:ml-0">
+                                <button mat-icon-button [matTooltip]="'Delete'"
+                                    (click)="UnassignUserToStation({userId:user.id, stationId:station.stationId, stationName:station.stationName})">
+                                    <mat-icon class="text-red-500" [svgIcon]="
+                                            'heroicons_outline:trash'
+                                        "></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+</fuse-card>

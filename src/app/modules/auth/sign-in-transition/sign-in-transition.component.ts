@@ -78,8 +78,6 @@ export class AuthSignInTransitionComponent implements OnInit, OnDestroy
             message: string;
           };
 
-          console.log('nav-state', state);
-
           if (state) {
             this.message = this._translocoService.translate(state.message);
           }

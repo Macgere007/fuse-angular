@@ -1,15 +1,16 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
-import { Subject, takeUntil } from 'rxjs';
+import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, map, Observable, Subject, switchMap, takeUntil } from 'rxjs';
 import { FuseLoadingService } from '@fuse/services/loading';
 import { TeamService } from './team.service';
-import { FormControl } from '@angular/forms';
+import { FormControl, UntypedFormControl } from '@angular/forms';
 import { User, UserRole } from 'app/models/user.type';
 import { Role } from 'app/models/role.type';
 import { UserService } from 'app/core/user/user.service';
 import { DataOperation } from 'app/models/data-operation.type';
 import { CloudUserService } from 'app/core/user/cloud.user.service';
 import { cloneDeep } from 'lodash-es';
+import { AvailableLangs, TranslocoService } from '@ngneat/transloco';
 
 @Component({
     selector       : 'settings-team',
@@ -47,18 +48,24 @@ export class SettingsTeamComponent implements OnInit
     users: User[];
     roleHints: any[];
     isLoadingError: boolean = false;
+    isLoading: boolean = false;
     roleControl = new FormControl('');
     selectedRole?: string;
     isAllowWrite: boolean = false;
     isAllowDelete: boolean = false;
     user: User;
-
+    
+    
     isShowAlert: boolean = false;
     alertType: string = 'info';
     alertMessage: string = '';
     alertIcon: string = 'heroicons_solid:exclamation';
+    public availableLangs: AvailableLangs;
+    public activeLang: string;
+    public activeLangTitle: string;
 
-    invitedEmailAddresses: string = '';
+    searchInputControl: UntypedFormControl = new UntypedFormControl();
+
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -70,6 +77,7 @@ export class SettingsTeamComponent implements OnInit
         private _fuseConfirmationService: FuseConfirmationService,
         private _teamService: TeamService,
         private _fuseLoading: FuseLoadingService,
+        private _translateService: TranslocoService,
         private _userService: UserService,
         private _cloudUserService: CloudUserService,
     )
@@ -85,6 +93,7 @@ export class SettingsTeamComponent implements OnInit
      */
     ngOnInit(): void
     {
+        
         // Subscribe to user changes
         this._userService.user$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -103,7 +112,6 @@ export class SettingsTeamComponent implements OnInit
                 this._changeDetectorRef.markForCheck();
             },
             error: (error) => {
-                console.log('roleDataSource error', error);
                 this._fuseLoading.hide();
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
@@ -113,19 +121,37 @@ export class SettingsTeamComponent implements OnInit
         this.teamDataSource.subscribe((members) => {
             this.members = cloneDeep(members);
             this.users = cloneDeep(members);
-
             this._changeDetectorRef.markForCheck();
         });
-    }
+
+        this.searchInputControl.valueChanges
+        .pipe(
+            takeUntil(this._unsubscribeAll),
+            debounceTime(300),
+            switchMap((query) => {
+                const result = this._teamService.getAllTeamMember(query);
+                return result
+            }),
+            map(() => {
+
+            })
+        )
+        .subscribe();
+}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+    
+    closeDetails(): void
+    {
+        this._teamService = null;
+    }
 
     deleteUser(member: User): void
     {
         if (this.isOwner(member)) {
-            this.showErrorAlert('You cannot delete your <b>God</b>.');
+            this.showErrorAlert('You cannot delete <b>yourself</b>.');
             return;
         }
 
@@ -134,15 +160,13 @@ export class SettingsTeamComponent implements OnInit
             return;
         }
 
-        console.log('deleteuser', member);
-
         // Open the confirmation dialog
         const confirmation = this._fuseConfirmationService.open({
-            title  : `Delete user ${member.name}`,
-            message: `Are you sure you want to remove user ${member.name}? This action cannot be undone!`,
+            title  : this.activeLang=='en'?`Delete user ${member.name}`:`Hapus pengguna ${member.name}`,
+            message: this.activeLang=='en'?`Are you sure you want to remove user ${member.name}? This action cannot be undone!`:`Apakah anda ingin menghapus user ${member.name} ini? Aksi ini tidak dapat dikembalikan`,
             actions: {
                 confirm: {
-                    label: 'Delete'
+                    label: this.activeLang=='en'?'Delete':'Hapus'
                 }
             }
         });
@@ -161,7 +185,6 @@ export class SettingsTeamComponent implements OnInit
                         this._fuseLoading.hide();
                     },
                     error: (error) => {
-                        console.log('error', error);
                         this._fuseLoading.hide();
                         this.showErrorAlert('Delete use failed. Please try again in a moment...');
                         this._changeDetectorRef.markForCheck();
@@ -173,15 +196,13 @@ export class SettingsTeamComponent implements OnInit
 
     updateUserRole(updateMember: User): void
     {
-        /* console.log('active users', this.members);
-        console.log('twins users', this.users); */
         let mirrorUser = null;
 
         for (const user of this.users) {
             if (user.id === updateMember.id) {
-                if (this.isOwner(user)) { // you try to demote a god, be carefull
+                if (this.isOwner(user)) { 
                     if (this.users.length <= 1) {
-                        this.showErrorAlert('You cannot demote your <b>God</b>.');
+                        this.showErrorAlert('You cannot demote this <b>role</b>.');
                         return;
                     }
                     else {
@@ -197,7 +218,7 @@ export class SettingsTeamComponent implements OnInit
                         }
 
                         if (!isOtherOwnerExist) {
-                            this.showErrorAlert(`Please elect other <b>God</b> before you can fire <b>${updateMember.name}</b>.`);
+                            this.showErrorAlert(`Please elect other <b>role</b> before you can fire <b>${updateMember.name}</b>.`);
                             return;
                         }
                     }
@@ -206,8 +227,6 @@ export class SettingsTeamComponent implements OnInit
                 }
             }
         }
-
-        console.log('updateUserRole', updateMember, this.roleControl.value);
 
         this._fuseLoading.show();
         // Update the User on the server
@@ -230,26 +249,9 @@ export class SettingsTeamComponent implements OnInit
     {
         return item.id || index;
     }
-
-    inviteUser(): void
-    {
-        this._fuseLoading.show();
-        console.log('invite user', this.invitedEmailAddresses);
-        this._cloudUserService.inviteUser(this.invitedEmailAddresses, this.user).then(
-            (response) => {
-                console.log('response', response);
-                this._fuseLoading.hide();
-                this.showSuccessAlert('Invitation sent');
-                this._changeDetectorRef.markForCheck();
-            },
-            (error) => {
-                console.log('error', error);
-                this._fuseLoading.hide();
-                this.showErrorAlert('Send invitation failed. Please try again in a moment...');
-                this._changeDetectorRef.markForCheck();
-            }
-        );
-    }
+    
+   
+   
 
     // -----------------------------------------------------------------------------------------------------
     // @ Private methods

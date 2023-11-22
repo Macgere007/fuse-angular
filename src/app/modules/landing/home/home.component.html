@@ -1,35 +1,36 @@
-<div class="flex flex-col items-center justify-center w-full h-full">
-    <div class="w-full max-w-3xl">
-        <ng-container *transloco="let t">
-            <div class="max-w-none mx-auto prose prose-sm">
+<div class="fixed items-center
+            justify-center w-full h-full
+            bg-[url('assets/images/background.jpg')]
+             bg-cover bg-center dark:bg-dark">
+    <div class ="items-center" *transloco="let t">
+                <div class="relative flex flex-0 
+                            items-center w-full
+                            h-16 px-3 md:px-6 z-49
+                            bg-card dark:bg-black 
+                            print:hidden">
                 <img
-                    class="w-20"
-                    src="assets/images/logo/swa-logo.png"
+                    class="w-36"
+                    src="assets/images/logo/energie.png"
                     alt="Logo image">
-                <h1>{{ t('welcome-title') }} to {{ appTitle }}</h1>
-                <p>
-                    This can be the landing or the welcome page of your application. If you have an SSR (Server Side Rendering) setup, or if you don't need to have Search engine
-                    visibility and optimizations, you can even use this page as your primary landing page.
-                </p>
-                <p>
-                    This is a separate "module", it has its own directory and routing setup and also it's completely separated from the actual application. This is also a simple example of
-                    a multiple applications setup that uses the same codebase. You can have different entry points and essentially have different applications within the same codebase.
-                </p>
-            </div>
-        </ng-container>
-        <ng-container *transloco="let t">
-            <div>
-                <a
-                    class="mt-8"
-                    mat-flat-button
-                    [color]="'primary'"
-                    [routerLink]="'/sign-in'">
-                    <mat-icon
-                        class="icon-size-5"
-                        [svgIcon]="'heroicons_outline:login'"></mat-icon>
-                    <span class="ml-2">{{ t('Sign in') }}</span>
-                </a>
-            </div>
-        </ng-container>
+                    
+                    <div class="flex items-center
+                    pl-2 ml-auto space-x-0.5 
+                    sm:space-x-2">
+        <a
+            class="w-28"
+            mat-flat-button
+            [color]="'primary'"
+            [routerLink]="'/sign-in'">
+            <span class="ml-2 uppercase">{{ t('Sign in') }}</span>
+            <mat-icon
+                class="icon-size-5"
+                [svgIcon]="'heroicons_outline:login'">
+            </mat-icon>
+        </a>
+    </div>
+    </div>
+    <div class="p-10 text-6xl sm:p-40 sm:-ml-20 md:p-50 md:text-7xl text-white font-extrabold">
+        Kami Hadir Untuk Negeri<br>
+       <span class="text-4xl sm:text-5xl text-white font-semibold">Merajut Harapan Hari Esok Berkelanjutan</span> 
     </div>
 </div>

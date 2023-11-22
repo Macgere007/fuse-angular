@@ -104,8 +104,6 @@ export class AuthSignUpConfirmationComponent implements OnInit
                     this._router.navigate(['/sign-in-transition'], navExtras);
                 },
                 error: (error) => {
-
-                    console.log('error', error);
                     
                     // Re-enable the form
                     this.confirmSignUpForm.enable();
@@ -128,7 +126,6 @@ export class AuthSignUpConfirmationComponent implements OnInit
 
     resendVerificationCode(): void
     {
-        console.log('resendVerificationCode');
 
         Auth.resendSignUp(this.signUpEmail).then(
             (success) => {
@@ -153,8 +150,6 @@ export class AuthSignUpConfirmationComponent implements OnInit
     private _extractParamsFromRoute(): void {
         this._activatedRoute.queryParams
             .subscribe((params) => {
-                console.log(params);
-
                 this.signUpEmail = params['signUpEmail'];
                 this.signUpDestination = params['signUpDestination'];
             }

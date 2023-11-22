@@ -3,7 +3,7 @@
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
             <!-- Logo -->
             <div class="w-24">
-                <img src="assets/images/logo/swa-logo.png">
+                <img src="assets/images/logo/energie.png">
             </div>
 
             <!-- Title -->
@@ -113,12 +113,12 @@
         </svg>
         <!-- @formatter:on -->
         <!-- Content -->
-        <div class="z-10 relative w-full max-w-2xl">
+        <div class="z-10 relative w-full max-w-2xl" *transloco="let t">
             <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Welcome</div>
+                <div>{{ t('welcome-title') }}</div>
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
-                {{appTitle}} help companies to manage contract TKDN reporting to SKK Migas.
+                {{ t('welcome-subtitle', { apptitle: appTitle}) }}
             </div>
             <div class="flex items-center mt-8">
                 <div class="flex flex-0 items-center -space-x-1.5">
@@ -135,7 +135,7 @@
                         class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
                         src="assets/images/avatars/male-16.jpg">
                 </div>
-                <div class="ml-4 font-medium tracking-tight text-gray-400">More than 17k companies joined us, it's your turn</div>
+                <div class="ml-4 font-medium tracking-tight text-gray-400">{{ t('welcome-footer', {total: '17k'}) }}</div>
             </div>
         </div>
     </div>

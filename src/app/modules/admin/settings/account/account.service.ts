@@ -55,14 +55,12 @@ export class AccountService
                     }
 
                     const account = camelcaseKeysDeep(result.item);
-                    console.log('getCurrentUser', account);
 
                     this._account.next(account);
 
                     resolve(account);
                 },
                 (err) => {
-                    console.log('catch error', err.response);
                     reject(err);
                 }
             );
@@ -82,20 +80,16 @@ export class AccountService
                 .pipe(
                     catchError((err) => {
                         if (err.detail) {
-                            console.log('createUser error', err);
                             return throwError(() => new Error(err.detail));
                         }
                         else if (err.response) {
-                            console.log('createUser error', err.response);
                             return throwError(() => new Error(err.response.data.message.error));
                         }
-                        console.log('createUser error', err);
                         return throwError(() => new Error(`Database error ${err.routine} (${err.code})`));
                     }),
                     switchMap(insertedAccount => this.account$.pipe(
                         take(1),
                         tap(() => {
-                        console.log('after switchMap insertedAccount', insertedAccount);
 
                         // Push to account subject
                         this._account.next(insertedAccount);
@@ -122,20 +116,16 @@ export class AccountService
                 .pipe(
                     catchError((err) => {
                         if (err.detail) {
-                            console.log('updateUser error', err);
                             return throwError(() => new Error(err.detail));
                         }
                         else if (err.response) {
-                            console.log('updateUser error', err.response);
                             return throwError(() => new Error(err.response.data.message.error));
                         }
-                        console.log('updateUser error', err);
                         return throwError(() => new Error(`Database error ${err.routine} (${err.code})`));
                     }),
                     switchMap(updatedAccount => this.account$.pipe(
                         take(1),
                         tap(() => {
-                            console.log('after switchMap updatedAccount', updatedAccount);
 
                             // Push to account subject
                             this._account.next(updatedAccount);

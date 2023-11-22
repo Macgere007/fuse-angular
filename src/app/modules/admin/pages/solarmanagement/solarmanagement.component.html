@@ -1,0 +1,42 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Header -->
+    <div
+        class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent">
+        <div class="flex-1 min-w-0">
+            <div class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    {{'Solar Management' |transloco}}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex-auto">
+        <div class="w-full px-9 pt-5">
+            <mat-form-field class="fuse-mat-no-subscript w-full" [floatLabel]="'always'">
+                <mat-icon class="icon-size-5" [svgIcon]="'mat_outline:ev_station'" matPrefix></mat-icon>
+                <input matInput [placeholder]='"Find Stations, locations, and users" | transloco'
+                    [formControl]="searchStation" [autocomplete]="'off'">
+                <button mat-icon-button matSuffix>
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:search'"></mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <!-- Station List Card -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 w-full px-5">
+            <station-card *ngFor="let station of stations"
+                     [station]="station"
+                     [searchUserAssign]="searchUserAssign"
+                     [isLoading]="station.isLoadingDataInProgress"
+                     [isShowAlert]="isShowAlert"
+                     [alertMessage]="alertMessage"
+                     [assignUserUpdateChanges]="assignUserUpdateChanges"
+                     (onMonitorStationClicked)="monitorStation($event)"
+                     (onAssignUserToStationClicked)="assignUserToStation($event)"
+                     (onUnAssignUserToStationClicked)="UnassignUserToStation($event)"
+                ></station-card>
+        </div>
+    </div>
+</div>

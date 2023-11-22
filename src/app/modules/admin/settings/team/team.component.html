@@ -4,24 +4,25 @@
         <div class="w-full">
             <mat-form-field
                 class="fuse-mat-no-subscript w-full"
-                [floatLabel]="'always'">
-                <mat-label>{{ t('Invite user') }}</mat-label>
+                [floatLabel]="'always'"
+                >
                 <mat-icon
                     class="icon-size-5"
                     [svgIcon]="'heroicons_solid:user'"
                     matPrefix></mat-icon>
                 <input
                     matInput
-                    [(ngModel)]="invitedEmailAddresses"
-                    [placeholder]="'Email address' | transloco">
+                    [placeholder]='"Find Users"|transloco'
+                    [formControl]="searchInputControl"
+                    [autocomplete]="'off'"
+                    >
                 <button
-                    [disabled]="!isAllowWrite"
-                    (click)="inviteUser()"
+                    (click)="search()"
                     mat-icon-button
                     matSuffix>
                     <mat-icon
                         class="icon-size-5"
-                        [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                        [svgIcon]="'heroicons_outline:search'"></mat-icon>
                 </button>
             </mat-form-field>
         </div>
@@ -35,14 +36,14 @@
               fuseAlertIcon
               [svgIcon]="alertIcon">
         </mat-icon>
-        <span [innerHTML]="alertMessage"></span>        
+        <span [innerHTML]="alertMessage"></span>
     </fuse-alert>
 
     <!-- Team members -->
-    <div class="flex flex-col mt-8 divide-y border-t border-b">
+    <div class="flex flex-col divide-y">
         <!-- <ng-container *ngIf="(teamDataSource | async) as members"> -->
-            <ng-container *ngFor="let member of members; trackBy: trackByFn;">
-                <div class="flex flex-col sm:flex-row sm:items-center py-6">
+            <ng-container *ngFor="let member of members; trackBy: trackByFn;" >
+                <div class="flex flex-col sm:flex-row sm:items-center py-6 -px-10">
                     <div class="flex items-center">
                         <div class="flex flex-0 items-center justify-center w-10 h-10 rounded-full overflow-hidden">
                             <ng-container *ngIf="member.avatar">
@@ -59,13 +60,13 @@
                         </div>
                         <div class="ml-4">
                             <div class="font-medium">{{member.name}}</div>
-                            <div class="text-secondary">{{member.email}}</div>
+                            <div class="text-secondary xxs:max-w-40 xs:max-w-80 xxs:overflow-hidden lg:overflow-x-scroll"> {{member.email}}</div>
                         </div>
                     </div>
                     <div class="flex items-center mt-4 sm:mt-0 sm:ml-auto">
-                        <div class="order-2 sm:order-1 ml-4 sm:ml-0">
+                        <div class="order-2 sm:order-1 ml-4 mt-5 sm:ml-0">
                             <mat-form-field class="fuse-mat-dense fuse-mat-no-subscript w-48">
-                                <mat-select 
+                                <mat-select
                                     [panelClass]="'w-128 min-w-96 max-w-128 h-auto max-h-none'"
                                     [(value)]="member.roleId"
                                     #roleSelect="matSelect">
@@ -78,7 +79,7 @@
                                         </ng-container>
                                     </mat-select-trigger>
                                     <ng-container *ngFor="let rc of roles">
-                                        <mat-option 
+                                        <mat-option
                                             class="h-auto py-4 leading-none"
                                             [value]="rc.id">
                                             <div class="font-medium">{{rc.name}}</div>
@@ -93,7 +94,7 @@
                             <button mat-icon-button
                                 [matTooltip]="'Update'"
                                 (click)="updateUserRole(member)"
-                                [disabled]="!isAllowWrite">
+                                [enabled]="!isAllowWrite">
                                 <mat-icon
                                     class="text-blue-500"
                                     [svgIcon]="'heroicons_outline:save'"></mat-icon>
@@ -101,7 +102,7 @@
                             <button mat-icon-button
                                 [matTooltip]="'Delete'"
                                 (click)="deleteUser(member)"
-                                [disabled]="!isAllowDelete">
+                                [enabled]="!isAllowDelete">
                                 <mat-icon
                                     class="text-red-500"
                                     [svgIcon]="'heroicons_outline:trash'"></mat-icon>

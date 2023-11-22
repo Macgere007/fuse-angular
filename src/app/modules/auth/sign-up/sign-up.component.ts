@@ -66,14 +66,10 @@ export class AuthSignUpComponent implements OnInit
     {
         this._activatedRoute.queryParams
             .subscribe((params) => {
-                console.log(params);
                 this.invitationToken = params['invitation'];
                 if (this.invitationToken) {
-                    console.log('invitationToken', this.invitationToken);
                     const decryptData = CryptoJS.AES.decrypt(this.invitationToken, 'R4745374N').toString(CryptoJS.enc.Utf8);
-                    console.log('decrypt invitation Token', decryptData);
                     this.invitation = JSON.parse(decryptData);
-                    console.log('decrypt invitation', this.invitation);
                     const now = new Date();
 
                     const validInvitaionDate = new Date(this.invitation.valid);
@@ -138,13 +134,11 @@ export class AuthSignUpComponent implements OnInit
                 },
                 error: (error) => {
 
-                    console.log('sign-up.component signUp error', error);
-
                     // Re-enable the form
                     this.signUpForm.enable();
 
                     // Reset the form
-                    this.signUpNgForm.resetForm();
+                    // this.signUpNgForm.resetForm();
 
                     // Set the alert
                     this.alert = {

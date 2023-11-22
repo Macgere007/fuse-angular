@@ -9,6 +9,8 @@ import { Auth } from 'aws-amplify';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import { TranslocoService } from '@ngneat/transloco';
 import { take } from 'rxjs';
+import { UserRole } from 'app/core/user/user.types';
+
 //import { CompanyType } from 'app/models/company.type';
 
 @Component({
@@ -99,12 +101,14 @@ export class AuthSignInComponent implements OnInit
                     // routing file and we don't have to touch here.
                     let redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/signed-in-redirect';
 
-                    // if (this._authService.currentUser.companyType === CompanyType.sysAdmin) {
-                    //     redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/admin-signed-in-redirect';
-                    // }
-                    // else if (this._authService.currentUser.companyType === CompanyType.skk) {
-                    //     redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/skk-signed-in-redirect';
-                    // }
+                    // if (this._authService.currentUser.UserRole === 'owner') {
+                    //     redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/admin-in-redirect';
+                    //  }
+                    if (this._authService.currentUserReal.user_role === 'Owner' || this._authService.currentUserReal.user_role === 'Administrator' || this._authService.currentUserReal.user_role === 'Readwrite' ) {
+                         redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/admin-in-redirect';
+                     }else{
+                        redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/user-in-redirect';
+                     }
 
                     // Navigate to the redirect url
                     this._router.navigateByUrl(redirectURL);
@@ -112,11 +116,15 @@ export class AuthSignInComponent implements OnInit
                 },
                 error: (response) => {
 
+                    if(response.message === 'User is not confirmed.') {
+                        this._router.navigate(['sign-up-confirmation'], {queryParams: {signUpEmail: this.signInForm.value.email, signUpDestination: this.signInForm.value.email }})
+                    }
+
                     // Re-enable the form
                     this.signInForm.enable();
 
                     // Reset the form
-                    this.signInNgForm.resetForm();
+                    // this.signInNgForm.resetForm();
 
                     // Set the alert
                     this.alert = {
@@ -143,10 +151,8 @@ export class AuthSignInComponent implements OnInit
             customState: JSON.stringify(customState)
         }).then(
             (credentials) => {
-                console.log('googleSignIn credential', credentials);
             },
             (error) => {
-                console.log('googleSignIn error', error);
             }
         );
     }

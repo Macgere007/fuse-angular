@@ -1,0 +1,251 @@
+<!-- No Station -->
+<div *ngIf="stationMe0" class="flex flex-auto w-full item-center justify-center xxs:p-8 lg:p-10">
+    <fuse-card *transloco="let t" class="flex flex-col xxs:max-w-100 xxs:py-6 xs:max-h-160 xs:py-6 lg:max-w-120 ">
+        <img class="object-cover w-120" src="assets/images/logo/swa-logo.png" alt="Energie Logo">
+        <div class="xxs:p-8 xxs:-mt-8 xs:p-8 lg:-mt-15">
+            <div class="text-secondary text-md mt-1">Status</div>
+            <div class="text-2xl font-semibold leading-tight">{{t("Nostation")}}</div>
+            <div class="xxs:flex-auto xxs:order-1 mt-4 text-justify">{{t("Nosolarstation")}} <br /><span>
+                    {{t("Supportcontact")}}</span></div>
+        </div>
+    </fuse-card>
+</div>
+
+<div *ngIf="!isLoadingDashboard"></div>
+<!-- Station assigned -->
+<div *ngIf="isLoadingDashboard">
+    <div *ngIf="!stationMe0" class="flex flex-auto w-full">
+        <div *transloco="let t" class="flex flex-wrap w-full justify-center items-center mx-auto p-6 md:p-8">
+            <!-- Title and action buttons -->
+            <div class="flex items-center justify-between w-full">
+                <div>
+                    <div class="text-3xl font-semibold tracking-tight leading-8">
+                        {{ userStationsName }} - Dashboard
+                        <!-- {{ currentuser ? currentuser.name : "" }} - Solar
+                        App -->
+                    </div>
+                    <div class="mt-2 font-medium tracking-tight text-secondary">
+                        {{ t('Monitor current and past station performance') }}
+                    </div>
+                </div>
+                <div class="flex items-center ml-6">
+                    <!-- Station Menu Item -->
+                    <button *ngIf="userStations.length >= 2" class="hidden sm:inline-flex ml-3" mat-flat-button
+                        mat-button [matMenuTriggerFor]="menu">
+                        Menu
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item (click)="selectAllStation()">
+                            Select All
+                        </button>
+                        <ng-container class="sm:hidden" *ngFor="let s of userStations; index as i">
+                            <button mat-menu-item>
+                                <input type="checkbox" [value]="s" class="mr-3" [checked]="
+                                    stationMe ? stationMe.includes(s) : false
+                                " (change)="getAllGraph(s)" />
+                                {{ userStationsName.split(' & ')[i] }}
+                            </button>
+                        </ng-container>
+                    </mat-menu>
+
+                    <!-- Actions menu (visible on xs) -->
+                    <div class="sm:hidden">
+                        <button *ngIf="userStations.length >= 2" [matMenuTriggerFor]="actionsMenu" mat-icon-button>
+                            <mat-icon [svgIcon]="'heroicons_outline:dots-vertical'"></mat-icon>
+                        </button>
+                        <mat-menu #actionsMenu="matMenu">
+                            <button mat-menu-item (click)="selectAllStation()">
+                                Select All
+                            </button>
+                            <ng-container class="sm:hidden" *ngFor="let s of userStations">
+                                <button mat-menu-item>
+                                    <input type="checkbox" name="station" [value]="s" class="mr-3" [checked]="
+                                        stationMe
+                                            ? stationMe.includes(s)
+                                            : false
+                                    " (change)="getAllGraph(s)" />
+                                    {{ s }}
+                                </button>
+                            </ng-container>
+                        </mat-menu>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col flex-auto w-full mt-8 bg-card shadow rounded-2xl overflow-hidden dark">
+                <div class="flex items-start justify-between m-6 mb-0">
+                    <div class="text-xl md:text-2xl font-bold tracking-tight leading-6 truncate">
+                        {{t("Powerflow")}}
+                    </div>
+                </div>
+                <div class="flex relative mx-6">
+                    <div
+                        class="static flex items-center justify-center w-full h-full max-h-100 place-items-center mb-4 mt-1">
+                        <!-- dummy filler to make the container static during video loading-->
+                        <div *ngIf="isShowVideoPlaceholder" class="flex items-center w-px h-100 text-center"></div>
+                        <video class="h-full max-h-100 w-174 rounded-3xl"
+                            *ngIf="!isLoadingSummary && summary.gridPower < 0" autoplay [muted]="'muted'" loop
+                            (play)="hideControls(this)">
+                            <source src="assets/solar/home-inverter-to-pln.mp4" type="video/mp4">
+                            Your browser does not support video.
+                        </video>
+                        <video class="h-full max-h-100 w-174 rounded-3xl"
+                            *ngIf="!isLoadingSummary && summary.gridPower >= 0" autoplay [muted]="'muted'" loop
+                            (play)="hideControls(this)">
+                            <source src="assets/solar/home-pln-to-inverter.mp4" type="video/mp4">
+                            Your browser does not support video.
+                        </video>
+                    </div>
+                    <div class="absolute w-full flex h-full justify-around items-center">
+                        <button
+                            [matTooltip]="weather && weather.current.weather.length > 0 ? weather?.current?.weather[0].description : '-'"
+                            class="absolute inline-block top-0 w-[20%] sm:w-[15%] xl:h-[10%] mr-[30%] cursor-auto"><img
+                                *ngIf="weather && weather.current.weather.length > 0"
+                                src="assets/icons/weather/fill/openweathermap/{{weather?.current?.weather[0].icon}}.svg"
+                                draggable="false" /></button>
+                        <button [matTooltip]="'Load' | transloco"
+                            class="text-xs xs:text-sm sm:text-2xl lg:text-6xl font-bold text-blue-400 sm:animate-pulse mr-[10%] shadow-md cursor-auto bg-card" [appCountUp]="summary.loadPower">
+                            <span class="text-md">kW</span>
+                        </button>
+                        <button [matTooltip]="'PV' | transloco"
+                            class="text-xs xs:text-sm sm:text-2xl lg:text-6xl font-bold text-green-400 sm:animate-pulse mb-[20%] shadow-md cursor-auto bg-card" [appCountUp]="summary.generatedPower">
+                            <span class="text-md">kW</span>
+                        </button>
+                        <button [matTooltip]="'PLN' | transloco"
+                            class="text-xs xs:text-sm sm:text-2xl lg:text-6xl font-bold sm:animate-pulse ml-[10%] shadow-md cursor-auto bg-card"
+                            [class]="summary && summary.gridPower >= 0 ? 'text-red-500' : 'text-green-500'" [appCountUp]="summary.generatedPower">
+                            <span class="text-md">kW</span>
+                        </button>
+                    </div>
+                </div>
+                <mat-progress-bar *ngIf="isLoadingSummary" mode="indeterminate"></mat-progress-bar>
+            </div>
+
+            <!-- Grafik overview PLTS -->
+            <chart-card class="w-full" [title]="t('Power graph')" [filterType]="powerType=='daily' ? 'single' : 'range'"
+                [filterOptions]="[{value:'daily',description:'Daily'}, {value:'weekly', description:'Weekly'}]"
+                [dateSingleLabel]="DatePowerLabelNow" [dateStartRangeLabel]="DatePowerWeekLabel"
+                [dateEndRangeLabel]="DatePowerLabelNow" [mainValue]="power ? power?.highestPLTS : 0" [mainValueUnit]="'kW'"
+                [subValue]="power ? (power?.highestPLTS/summary?.powerMax | percent) : 0"
+                [tooltipValue]="'Maximum generated power in range compare to the highest generated power since first installed' | transloco"
+                [chartData]="chartPLTS" [isLoading]="isloadingPowerGraph" [currentFilter]="powerType"
+                [chartClass]="'h-120'" (onDateChanged)="changeDatePower($event)"
+                (onExportClicked)="importExcelPowerGraph($event)"
+                (onFilterOptionChanged)="handleChangePowerType($event)"></chart-card>
+
+            <!-- Energi per hari -->
+            <chart-card class="w-full" [title]="t('EnergyYield')"
+                [filterType]="energyType=='daily' ? 'single' : 'range'"
+                [filterOptions]="[{value:'daily',description:'Daily'}, {value:'monthly', description:'Monthly'}]"
+                [dateSingleLabel]="DateEnergyLabelNow" [dateStartRangeLabel]="DateEnergyWeekLabel"
+                [dateEndRangeLabel]="DateEnergyLabelNow" [mainValue]="energy ? energy?.totalEnergy : 0" [mainValueUnit]="'kWh'"
+                [tooltipValue]="'Total energy yields in selected date range' | transloco" [chartData]="chartEnergy"
+                [isLoading]="isloadingEnergyGraph" [currentFilter]="energyType" [chartClass]="'h-120 mt-3 mb-2'"
+                (onDateChanged)="changeDateEnergy($event)" (onExportClicked)="importExcelEnergyYield($event)"
+                (onFilterOptionChanged)="handleChangeEnergyType($event)"></chart-card>
+
+            <!-- Informasi Daya dan Energi -->
+            <div class="w-full mt-12">
+                <div class="text-3xl font-semibold tracking-tight leading-6">
+                    {{ t("Summary Information") }}
+                </div>
+                <div class="mt-2 font-medium tracking-tight text-secondary">
+                    {{t('Real-time Power and Energy, Total Power and Energy, and Weather Information')}}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-8 mb-2">
+                <!-- Daya dan Energi -->
+                <summary-card [summaryIcon]="'bolt'" [summaryTitle]="'Powercurrent' | transloco"
+                    [mainValue]="summary ? summary?.generatedPower : 0" [mainValueUnit]="'kW'"
+                    [tooltipValue]="summary?.pvMaxPowerUpdated == '' ? '-' : ('Maximum power updated' | transloco) + ' ' + pvmaxpower"
+                    [subValue]="summary ? summary?.powerMax : 0" [subValueUnit]="'kW'" [isShowPercentage]="true"
+                    [percentageValue]="summary ? summary.generatedPower/summary.powerMax*100 : 0"
+                    [isLoading]="isLoadingSummary">
+                </summary-card>
+
+                <!-- Total energi -->
+                <summary-card [summaryIcon]="'monetization_on'" [summaryTitle]="(summary ? summary.unit : '') + ' ' + TodayIncomeLabel"
+                    [mainValue]="summary ? summary?.dayElec : 0" [mainValueUnit]="'kWh'"
+                    [tooltipValue]="(summary?.pvMaxKwhUpdated == '' ? '-' : ('Maximum energy updated' | transloco) + ' ' + pvmaxkwh)"
+                    [subValue]="summary ? summary?.pvMaxKwh : 0" [subValueUnit]="'kWh'" [isShowPercentage]="true"
+                    [percentageValue]="summary ? summary?.dayElec/summary?.pvMaxKwh*100 : 0"
+                    [isLoading]="isLoadingSummary">
+                </summary-card>
+
+                <!-- Data Terbaru -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 w-full min-w-0 mt-4 mb-2">
+                    <!-- Total Energy -->
+                    <simple-summary-card [icon]="'bolt'" [title]="'Total Energy' | transloco"
+                        [summaryValue]="summary ? summary?.yearElec : 0" [valueColor]="'text-blue-500'" [unit]="'kWh'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [valueUnitColor]="'text-blue-600 dark:text-blue-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                    <!-- Total Pendapatan -->
+                    <simple-summary-card [icon]="'monetization_on'" [title]="'Totalincome' | transloco"
+                        [summaryValue]="summary ? summary?.totalIncome : 0"
+                        [valueColor]="'text-red-600 dark:text-red-500'" [unit]="summary ? summary.unit : 'IDR'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [valueUnitColor]="'text-red-600 dark:text-red-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                    <!-- Efisiensi CO2 -->
+                    <simple-summary-card [icon]="'flourescent'" [title]="'co2' | transloco"
+                        [summaryValue]="summary ? summary?.co2 : 0" [valueColor]="'text-amber-500'" [unit]="'KG'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [valueUnitColor]="'text-amber-600 dark:text-amber-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                    <!-- Penyelamatan Pohon -->
+                    <simple-summary-card [icon]="'local_florist'" [title]="'Treesave' | transloco"
+                        [summaryValue]="summary ? summary?.forest : 0" [valueColor]="'text-green-500'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [unit]="'Tree' | transloco" [valueUnitColor]="'text-green-600 dark:text-green-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                </div>
+
+                <!-- Weather Data -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 w-full min-w-0 mt-4">
+                    <!-- Weather -->
+                    <simple-summary-card [icon]="'heroicons_outline:cloud'" [title]="'Weather' | transloco"
+                        [imageValue]="weather?.current?.weather.length > 0 ? 'assets/icons/weather/fill/openweathermap/' + weather?.current?.weather[0].icon + '.svg' : ''"
+                        [valueColor]="'text-blue-500'"
+                        [unit]="weather?.current?.weather.length > 0 ? weather?.current?.weather[0].description : ''"
+                        [valueUnitColor]="'text-blue-600 dark:text-blue-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                    <!-- Wind -->
+                    <simple-summary-card [icon]="'feather:wind'" [title]="'Wind' | transloco"
+                        [summaryValue]="weather ? weather?.current?.wind_speed : 0" [valueColor]="'text-red-500'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [unit]="'KM'" [valueUnitColor]="'text-red-600 dark:text-red-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                    <!-- Kelembapan -->
+                    <simple-summary-card [icon]="'water_drop'" [title]="'Humidity' | transloco"
+                        [summaryValue]="weather ? weather.current?.humidity : 0" [valueColor]="'text-amber-500'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [unit]="'%'" [valueUnitColor]="'text-amber-600 dark:text-amber-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                    <!-- Cloud -->
+                    <simple-summary-card [icon]="'heroicons_solid:cloud'" [title]="'Cloudy' | transloco"
+                        [summaryValue]="weather ? weather.current?.clouds : 0" [valueColor]="'text-green-500'"
+                        [summaryValueNumberFormatOptions]="{minimumIntegerDigits: 1, minimumFractionDigits: 0, maximumFractionDigits: 0}"
+                        [unit]="'%'" [valueUnitColor]="'text-green-600 dark:text-green-500'"
+                        [isLoading]="isLoadingSummary"></simple-summary-card>
+
+                </div>
+            </div>
+        </div>
+        <a class="fixed sm:bottom-12 xxs:bottom-3 xxs:right-3 sm:right-12  z-99"
+            href="https://api.whatsapp.com/send?phone=6285723723835" target="_blank" rel="noreferrer">
+            <button mat-icon-button [matTooltip]="'Contact Admin Energie'"
+                class="bg-gradient-to-tr from-green-800 to-green-500 hover:scale-105 hover:shadow-lg transition-shadow">
+                <mat-icon class="text-white -scale-x-100" [svgIcon]="
+            'heroicons_outline:chat'
+        "></mat-icon>
+            </button>
+        </a>
+    </div>

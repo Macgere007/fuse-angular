@@ -40,7 +40,6 @@ export class AuthSignOutComponent implements OnInit, OnDestroy
     {
         // catch up active language from auth.service (localStorage)
         // because sign-out page can ben call from social logout process flow
-        console.log('signout ngOnInit active language', this._authService.activeLanguage);
         this._translateService.setActiveLang(this._authService.activeLanguage);
 
         // Sign out

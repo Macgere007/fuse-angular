@@ -6,6 +6,7 @@ import { User } from 'app/models/user.type';
 import { Role } from 'app/models/role.type';
 import { TeamService } from './team/team.service';
 import { UserService } from 'app/core/user/user.service';
+import { GlobalStateService } from 'app/core/solar/global-state.service';
 
 @Component({
     selector       : 'settings',
@@ -27,6 +28,7 @@ export class SettingsComponent implements OnInit, OnDestroy
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
+
     /**
      * Constructor
      */
@@ -35,6 +37,7 @@ export class SettingsComponent implements OnInit, OnDestroy
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _teamService: TeamService,
         private _userService: UserService,
+        private _globalState: GlobalStateService
     )
     {
     }
@@ -61,26 +64,32 @@ export class SettingsComponent implements OnInit, OnDestroy
                 //description: 'Manage your public profile and private information'
             },
             {
-                id         : 'company',
-                icon       : 'heroicons_outline:office-building',
-                title      : 'Company',
-                //description: 'Manage your company information'
+                id         : 'security',
+                icon       : 'heroicons_outline:lock-closed',
+                title      : 'Security',
+                description: 'Manage your password and 2-step verification preferences'
             },
+            // {
+            //     id         : 'company',
+            //     icon       : 'heroicons_outline:office-building',
+            //     title      : 'Company',
+            //     //description: 'Manage your company information'
+            // },
             {
                 id         : 'team',
                 icon       : 'heroicons_outline:user-group',
-                title      : 'User Management',
+                title      : 'User',
                 //description: 'Manage your existing users and change roles/permissions'
             },
-            {
-                id         : 'plan-billing',
-                icon       : 'heroicons_outline:credit-card',
-                title      : 'Plan & Billing',
-                //description: 'Manage your subscription plan, payment method and billing information'
-            },
+            // {
+            //     id         : 'plan-billing',
+            //     icon       : 'heroicons_outline:credit-card',
+            //     title      : 'Plan & Billing',
+            //     //description: 'Manage your subscription plan, payment method and billing information'
+            // },
         ];
 
-        const adminPanels = [
+        const userPanels = [
             {
                 id         : 'account',
                 icon       : 'heroicons_outline:user-circle',
@@ -88,27 +97,13 @@ export class SettingsComponent implements OnInit, OnDestroy
                 //description: 'Manage your public profile and private information'
             },
             {
-                id         : 'team',
-                icon       : 'heroicons_outline:user-group',
-                title      : 'User Management',
-                //description: 'Manage your existing users and change roles/permissions'
+                id         : 'security',
+                icon       : 'heroicons_outline:lock-closed',
+                title      : 'Security',
+                description: 'Manage your password and 2-step verification preferences'
             },
         ];
 
-        const skkPanels = [
-            {
-                id         : 'account',
-                icon       : 'heroicons_outline:user-circle',
-                title      : 'Account',
-                //description: 'Manage your public profile and private information'
-            },
-            {
-                id         : 'team',
-                icon       : 'heroicons_outline:user-group',
-                title      : 'User Management',
-                //description: 'Manage your existing users and change roles/permissions'
-            },
-        ];
 
         // Subscribe to user changes
         this._userService.user$
@@ -157,6 +152,11 @@ export class SettingsComponent implements OnInit, OnDestroy
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
     }
+
+    ngAfterViewInit() {
+        console.log('user setting ngAfterViewInit');
+        this._globalState.isStopLongRunningProcess = true;
+      }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods

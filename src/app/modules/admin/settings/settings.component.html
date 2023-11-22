@@ -90,24 +90,25 @@
                             <settings-security></settings-security>
                         </ng-container>
                         <!-- Plan & Billing -->
-                        <ng-container *ngSwitchCase="'plan-billing'">
+                        <!-- <ng-container *ngSwitchCase="'plan-billing'">
                             <settings-plan-billing></settings-plan-billing>
-                        </ng-container>
+                        </ng-container> -->
                         <!-- Team -->
                         <ng-container *ngSwitchCase="'team'">
                             <settings-team [roleDataSource]="roleLookup$" [teamDataSource]="teamLookup$"></settings-team>
                         </ng-container>
                         <!-- Company -->
-                        <ng-container *ngSwitchCase="'company'">
+                        <!-- <ng-container *ngSwitchCase="'company'">
                             <settings-company></settings-company>
-                        </ng-container>
+                        </ng-container> -->
                     </ng-container>
                 </div>
 
             </div>
 
         </mat-drawer-content>
-
+        
     </mat-drawer-container>
+    <settingmode></settingmode>
 
 </div>

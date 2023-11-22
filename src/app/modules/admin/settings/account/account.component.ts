@@ -74,7 +74,6 @@ export class SettingsAccountComponent implements OnInit
                 this._changeDetectorRef.markForCheck();
             },
             error: (err) => {
-                console.log('error occured call getAccount', err);
 
                 this.isLoadingError = true;
                 //this.isLoadingStart = false;
@@ -88,18 +87,13 @@ export class SettingsAccountComponent implements OnInit
     {
         // Get the account object
         const account = this.accountForm.getRawValue();
-        console.log('updateAccount', account);
-
-        console.log('call updateAccount service');
         //this.isLoading = true;
         this._fuseLoading.show();
 
         if (account.cognito) {
-            console.log('updateAccount call createAccount', account);
             // Update the account on the server
             this._accountService.createAccount(account).subscribe({
                 next: () => {
-                    console.log('crateAccount success', account);
                     this._translocoService.setActiveLang(account.language);
                     // Show a success message
                     this.showFlashMessage('success');
@@ -108,7 +102,6 @@ export class SettingsAccountComponent implements OnInit
                     this._changeDetectorRef.markForCheck();
                 },
                 error:(err) => {
-                    console.log('error occured call updateAccount', err);
                     this.showFlashMessage('error');
                     //this.isLoading = false;
                     this._fuseLoading.hide();
@@ -119,7 +112,6 @@ export class SettingsAccountComponent implements OnInit
             // Update the account on the server
             this._accountService.updateAccount(account).subscribe({
                 next: () => {
-                    console.log('updateAccount success', account);
                     this._translocoService.setActiveLang(account.language);
                     // Show a success message
                     this.showFlashMessage('success');
@@ -128,7 +120,6 @@ export class SettingsAccountComponent implements OnInit
                     this._changeDetectorRef.markForCheck();
                 },
                 error:(err) => {
-                    console.log('error occured call updateAccount', err);
                     this.showFlashMessage('error');
                     //this.isLoading = false;
                     this._fuseLoading.hide();
@@ -139,15 +130,11 @@ export class SettingsAccountComponent implements OnInit
 
     resetAccount(): void
     {
-        console.log('resetAccount started');
-
         //this.isLoading = true;
         this._fuseLoading.show();
         // Update the bank on the server
         this.account$.subscribe(
             (account) => {
-                console.log('resetAccount end', account);
-
                 this._translocoService.setActiveLang(account.language);
                 this.accountForm.patchValue(account);
                 //this.isLoading = false;

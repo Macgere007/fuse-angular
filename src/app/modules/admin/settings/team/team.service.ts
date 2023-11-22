@@ -4,6 +4,7 @@ import { User } from 'app/models/user.type';
 import { Pagination } from 'app/models/pagination.type';
 import { CloudUserService } from 'app/core/user/cloud.user.service';
 import { Role } from 'app/models/role.type';
+import { HttpClient } from '@angular/common/http';
 
 const camelcaseKeysDeep = require('camelcase-keys-deep');
 
@@ -29,7 +30,8 @@ export class TeamService
      * Constructor
      */
     constructor(
-        private _cloudUserService: CloudUserService)
+        private _cloudUserService: CloudUserService,
+        private _httpClient: HttpClient)
     {
         // Setup the roles
         this._roleHints.Readonly = 'As it says you can only read data';
@@ -101,13 +103,12 @@ export class TeamService
 
     /**
      * Get All Team Member Lookup
+     * 
      */
-     getAllTeamMember(): Observable<User[]>
+     getAllTeamMember(filters?: string): Observable<User[]>
     {
-        console.log('getAllTeamMember');
-
         const promise = new Promise<User[]>((resolve, reject) => {
-            this._cloudUserService.getUsers(1000).then(
+            this._cloudUserService.getUsers(1000, filters).then(
                 (result) => {
                     if (result.error) {
                         // do nothing
@@ -122,7 +123,6 @@ export class TeamService
                     resolve(accounts);
                 },
                 (err) => {
-                    console.log('catch error', err.response);
                     reject(err);
                 }
             );
@@ -131,6 +131,9 @@ export class TeamService
         return from(promise);
     }
 
+
+   
+  
     /**
      * Get team
      *
@@ -206,8 +209,6 @@ export class TeamService
      */
      getRoleLookup(): Observable<Role[]>
     {
-        console.log('getRoleLookup');
-
         const promise = new Promise<Role[]>((resolve, reject) => {
             this._cloudUserService.getRoles(1000).then(
                 (result) => {
@@ -228,7 +229,6 @@ export class TeamService
                     resolve(roles);
                 },
                 (err) => {
-                    console.log('catch error', err.response);
                     reject(err);
                 }
             );
@@ -258,8 +258,6 @@ export class TeamService
             lastKey = this._lastKeys.get(page-1);
         }
 
-        console.log('getRoles page', page, 'size', size, 'search', search, 'lastKey', lastKey);
-
         const promise = new Promise<{pagination: Pagination; roles: Role[]}>((resolve, reject) => {
             this._cloudUserService.getRoles(size, lastKey, search).then(
                 (result) => {
@@ -280,16 +278,12 @@ export class TeamService
                         page: page,
                         lastPage: lastPage
                     };
-                    console.log('pagination', pagination);
 
                     this._lastKeys.set(page, result.lastItemKey);
-                    console.log('this._lastKeys', this._lastKeys);
 
                     result.items.forEach((role: Role) => {
                         role.description = this._roleHints[role.name];
                     });
-
-                    console.log('after reset roledescription', result.items);
 
                     this._rolePagination.next(pagination);
 
@@ -299,7 +293,6 @@ export class TeamService
                     resolve({pagination:null, roles:roles});
                 },
                 (err) => {
-                    console.log('catch error', err.response);
                     reject(err);
                 }
             );
@@ -364,8 +357,6 @@ export class TeamService
      */
     updateAccount(id: string, account: User): Observable<User>
     {
-        console.log('account.service.updateAccount', id, account);
-
         if (id === '000') {
             return this.teamLookup$.pipe(
                 take(1),
@@ -373,21 +364,16 @@ export class TeamService
                     .pipe(
                         catchError((err) => {
                             if (err.detail) {
-                                console.log('createUser error', err);
                                 return throwError(() => new Error(err.detail));
                             }
                             else if (err.response) {
-                                console.log('createUser error', err.response);
                                 return throwError(() => new Error(err.response.data.message.error));
                             }
-                            console.log('createUser error', err);
                             return throwError(() => new Error(`Database error ${err.routine} (${err.code})`));
                         }),
                         map((insertedAccount) => {
-                            console.log('after createAccount', insertedAccount);
                             // Find the index of the updated Account
                             const index = accounts.findIndex(item => item.id === '000');
-                            console.log('service update Account index', index);
                             // Update the Account
                             accounts[index] = insertedAccount;
 
@@ -396,7 +382,6 @@ export class TeamService
                         switchMap(insertedAccount => this.account$.pipe(
                             take(1),
                             tap(() => {
-                            console.log('after switchMap insertedAccount', insertedAccount);
                             // Update the Account if it's selected
                             this._account.next(insertedAccount);
 
@@ -415,23 +400,17 @@ export class TeamService
                 .pipe(
                     catchError((err) => {
                         if (err.detail) {
-                            console.log('updateUserRole error', err);
                             return throwError(() => new Error(err.detail));
                         }
                         else if (err.response) {
-                            console.log('updateUserRole error', err.response);
                             return throwError(() => new Error(err.response.data.message.error));
                         }
-                        console.log('updateUserRole error', err);
                         return throwError(() => new Error(`Database error ${err.routine} (${err.code})`));
                     }),
                     map((updatedAccount) => {
 
-                        console.log('service updateAccount index', id, account);
-
                         // Find the index of the updated Account
                         const index = accounts.findIndex(item => item.id === id);
-                        console.log('service updateAccount index', index);
 
                         // Update the Account
                         accounts[index] = updatedAccount;
@@ -445,7 +424,6 @@ export class TeamService
                     switchMap(updatedAccount => this.account$.pipe(
                         take(1),
                         tap(() => {
-                            console.log('after switchMap updatedAccount', updatedAccount);
 
                             // Update the Account if it's selected
                             this._account.next(updatedAccount);
@@ -493,14 +471,11 @@ export class TeamService
             switchMap(accounts => from(this._cloudUserService.deleteUser(id)).pipe(
                 catchError((err) => {
                     if (err.detail) {
-                        console.log('deleteUser error', err);
                         return throwError(() => new Error(err.detail));
                     }
                     else if (err.response) {
-                        console.log('deleteUser error', err.response);
                         return throwError(() => new Error(err.response.data.message.error));
                     }
-                    console.log('deleteUser error', err);
                     return throwError(() => new Error(`Database error ${err.routine} (${err.code})`));
                 }),
                 map((isDeleted: boolean) => {

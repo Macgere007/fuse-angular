@@ -1,18 +1,22 @@
-<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0">
-    <div class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
-        <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+<div class="flex flex-col sm:flex-row items-center sm:justify-center flex-auto min-w-0">
+    <div class="fixed items-center
+    justify-center w-full h-full
+    bg-[url('assets/images/background.jpg')]
+     bg-cover bg-center dark:bg-dark"></div>
+    <div class="w-full sm:w-auto py-8 px-4 sm:p-12 sm:rounded-2xl xxs:h-full sm:h-auto flex items-center sm:shadow sm:bg-card backdrop-blur-sm xxs:bg-white/40 sm:bg-white/60 dark:bg-black/80">
+        <div class="w-full max-w-80 sm:w-80 mx-auto my-auto sm:mx-0">
             <!-- Logo -->
             <div class="w-24">
-                <img src="assets/images/logo/swa-logo.png" [routerLink]="['/']">
+                <img src="assets/images/logo/energie.png" [routerLink]="['/']">
             </div>
             <ng-container *transloco="let t">
             <!-- Title -->
-            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">{{ t('Sign in') }}</div>
+            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">{{ t('Sign In') }}</div>
             <div *ngIf="allowSignUp" class="flex items-baseline mt-0.5 font-medium">
                 <div>{{ t('Don\'t have an account?') }}</div>
                 <a
                     class="ml-1 text-primary-500 hover:underline"
-                    [routerLink]="['/sign-up']">{{ t('Sign up') }}
+                    [routerLink]="['/sign-up']">{{ t('Sign Up') }}
                 </a>
             </div>
             </ng-container>
@@ -36,7 +40,7 @@
 
                 <ng-container *transloco="let t">
                 <!-- Email field -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full text-white">
                         <mat-label>{{ t('Email address') }}</mat-label>
                         <input
                             id="email"
@@ -53,7 +57,7 @@
 
                 <ng-container *transloco="let t">
                 <!-- Password field -->
-                    <mat-form-field class="w-full">
+                    <mat-form-field class="w-full text-white">
                         <mat-label>{{ t('Password') }}</mat-label>
                         <input
                             id="password"
@@ -83,15 +87,16 @@
 
                 <ng-container *transloco="let t">
                 <!-- Actions -->
-                    <div class="inline-flex items-end justify-between w-full mt-1.5">
+                    <div class="inline-flex items-center justify-between w-full mt-1.5">
                         <mat-checkbox
+                            class="-ml-2"
                             [color]="'primary'"
                             [formControlName]="'rememberMe'">
                             {{ t('Remember me') }}
                         </mat-checkbox>
                         <a
                             class="text-md font-medium text-primary-500 hover:underline"
-                            [routerLink]="['/forgot-password']">{{ t('Forgot password?') }}
+                            [routerLink]="['/forgot-password']">{{ t('Forgot Password?') }}
                         </a>
                     </div>
                 </ng-container>
@@ -102,7 +107,7 @@
                         class="fuse-mat-button-large w-full mt-6"
                         mat-flat-button
                         [color]="'primary'"
-                        [disabled]="signInForm.disabled"
+                        [disabled]="signInForm.value.email === '' || signInForm.value.password === ''"
                         (click)="signIn()">
                         <span *ngIf="!signInForm.disabled">
                             {{ t('Sign in') }}
@@ -145,13 +150,13 @@
                     </button>
                 </div> -->
 
-                <div class="flex justify-center mt-4">
+                <!-- <div class="flex justify-center mt-4">
                     <languages [showTitle]="true"></languages>
-                </div>
+                </div> -->
             </form>
         </div>
     </div>
-    <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l">
+    <div class="relative hidden flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden bg-gray-800 dark:border-l">
         <!-- Background - @formatter:off -->
         <!-- Rings -->
         <svg class="absolute inset-0 pointer-events-none"
@@ -178,7 +183,6 @@
         <div class="z-10 relative w-full max-w-2xl">
             <div class="text-7xl font-bold leading-none text-gray-100">
                 <div>{{ t('welcome-title') }}</div>
-                <!-- <div>{{appTitle}}</div> -->
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
                 <div>{{ t('welcome-subtitle', { apptitle: appTitle}) }}</div>                

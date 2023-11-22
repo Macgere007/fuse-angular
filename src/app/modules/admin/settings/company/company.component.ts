@@ -90,7 +90,6 @@ export class SettingsCompanyComponent implements OnInit, OnDestroy
                 this.companyForm.patchValue(company);
             },
             error: (err) => {
-                console.log('error occured call getBanks', err);
 
                 this.isLoadingError = true;
                 //this.isLoadingStart = false;
@@ -114,9 +113,6 @@ export class SettingsCompanyComponent implements OnInit, OnDestroy
     {
         // Get the company object
         const company = this.companyForm.getRawValue();
-        console.log('updateCompany', company);
-
-        console.log('call updateCompany service');
         //this.isLoading = true;
         this._fuseLoading.show();
         // Update the bank on the server
@@ -128,7 +124,6 @@ export class SettingsCompanyComponent implements OnInit, OnDestroy
                 this._fuseLoading.hide();
             },
             error:(err) => {
-                console.log('error occured call updateCompany', err);
                 this.showFlashMessage('error');
                 //this.isLoading = false;
                 this._fuseLoading.hide();
@@ -138,14 +133,12 @@ export class SettingsCompanyComponent implements OnInit, OnDestroy
 
     resetCompany(): void
     {
-        console.log('resetCompany started');
 
         //this.isLoading = true;
         this._fuseLoading.show();
         // Update the bank on the server
         this.company$.subscribe(
             (company) => {
-                console.log('resetCompany end');
                 this.companyForm.patchValue(company);
                 //this.isLoading = false;
                 this._fuseLoading.hide();

@@ -124,7 +124,6 @@ export class AuthResetPasswordComponent implements OnInit
                 },
                 error: (error) => {
 
-                    console.log('resetPassword error', error);
                     // Set the alert
                     this.alert = {
                         type   : 'error',

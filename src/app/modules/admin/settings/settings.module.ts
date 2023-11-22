@@ -24,6 +24,7 @@ import { settingsRoutes } from 'app/modules/admin/settings/settings.routing';
 import { TranslocoModule } from '@ngneat/transloco';
 import { SettingsTeamComponent } from './team/team.component';
 import { SharedDirectiveModule } from 'app/directives/shared-directive.module';
+import { SettingLayoutModule } from "../../../layout/common/settings/settingmode.module";
 
 @NgModule({
     declarations: [
@@ -33,9 +34,9 @@ import { SharedDirectiveModule } from 'app/directives/shared-directive.module';
         SettingsPlanBillingComponent,
         SettingsNotificationsComponent,
         SettingsCompanyComponent,
-        SettingsTeamComponent
+        SettingsTeamComponent,
     ],
-    imports     : [
+    imports: [
         RouterModule.forChild(settingsRoutes),
         MatButtonModule,
         MatFormFieldModule,
@@ -52,7 +53,8 @@ import { SharedDirectiveModule } from 'app/directives/shared-directive.module';
         FuseAlertModule,
         TranslocoModule,
         SharedDirectiveModule,
-        SharedModule
+        SharedModule,
+        SettingLayoutModule
     ]
 })
 export class SettingsModule
